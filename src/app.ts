@@ -3,9 +3,10 @@ import mongoose from "mongoose";
 import passport from "passport";
 import session from "express-session";
 import { keys } from "./config/keys";
-import { router } from "./routes"; // Import main router
+import { router } from "./routes";
 import path from "path";
 import "./services/passport";
+import cors from "cors";
 
 const app = express();
 
@@ -25,11 +26,19 @@ app.use(
   })
 );
 
+app.use(
+  cors({
+    origin: "http://localhost:3001", // Allow requests from this origin
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Allow these methods
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+  })
+);
+
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(express.json());
-app.use(router); // Use main router
+app.use(router);
 
 // Serve static files from the "views" directory
 app.use(express.static(path.join(__dirname, "views")));

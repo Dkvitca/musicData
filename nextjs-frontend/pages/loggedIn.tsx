@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Link from "next/link";
 
 interface Playlist {
   id: string;
@@ -14,7 +15,9 @@ interface Track {
   artist: string;
   album: string;
   href: string;
-  imageUrl: string; // Ensure the track has an imageUrl property
+  imageUrl: string;
+  tags?: { name: string; count: number }[];
+  releaseYear?: string;
 }
 
 const LoggedIn = () => {
@@ -26,7 +29,10 @@ const LoggedIn = () => {
   useEffect(() => {
     const fetchPlaylistsWithTracks = async () => {
       try {
-        const response = await axios.get("/api/playlists");
+        const response = await axios.get(
+          "http://localhost:3000/api/playlists",
+          { withCredentials: true }
+        );
         setPlaylists(response.data);
       } catch (error) {
         console.error("Error fetching playlists with tracks:", error);
@@ -45,10 +51,15 @@ const LoggedIn = () => {
 
   return (
     <div className="bg-dark-gradient min-h-screen text-white">
-      <header className="bg-gray-900 p-6 shadow-lg">
-        <h1 className="text-4xl font-bold text-center">
-          Your Spotify Playlists
-        </h1>
+      <header className="bg-gray-900 p-6 shadow-lg flex justify-between items-center">
+        <h1 className="text-4xl font-bold">Your Spotify Playlists</h1>
+        <nav>
+          <Link href="/dbAlbums" legacyBehavior>
+            <a className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
+              View Albums
+            </a>
+          </Link>
+        </nav>
       </header>
       <main className="container mx-auto p-6">
         <ul className="space-y-6">
@@ -94,16 +105,28 @@ const LoggedIn = () => {
                         <div className="flex-shrink-0 w-16 h-16 bg-gray-700 rounded-lg mr-4"></div>
                       )}
                       <div className="flex-1">
-                        <div className="text-xl font-semibold">
-                          {track.name}
-                        </div>
-                        <div className="text-sm text-gray-300">
-                          {track.artist}
-                        </div>
-                        <div className="text-sm text-gray-400 italic">
-                          {track.album}
-                        </div>
+                        <h3 className="text-xl font-semibold">{track.name}</h3>
+                        <p className="text-sm text-gray-300">{track.artist}</p>
+                        <p className="text-sm text-gray-400">{track.album}</p>
+                        {track.releaseYear && (
+                          <p className="text-sm text-gray-400">
+                            Released: {track.releaseYear}
+                          </p>
+                        )}
+                        {track.tags && (
+                          <div className="text-sm text-gray-400">
+                            Tags: {track.tags.map((tag) => tag.name).join(", ")}
+                          </div>
+                        )}
                       </div>
+                      <a
+                        href={track.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+                      >
+                        Listen
+                      </a>
                     </li>
                   ))}
                 </ul>
