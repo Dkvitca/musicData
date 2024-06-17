@@ -1,14 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-
-interface Playlist {
-  id: string;
-  name: string;
-  href: string;
-  images: { url: string }[];
-  tracks: Track[];
-}
+import { usePlaylist } from "../contexts/PlaylistContext";
+import { useRouter } from "next/router";
 
 interface Track {
   name: string;
@@ -20,26 +14,34 @@ interface Track {
   releaseYear?: string;
 }
 
-const LoggedIn = () => {
+interface Playlist {
+  id: string;
+  name: string;
+  href: string;
+  images: { url: string }[];
+  tracks: Track[];
+}
+
+const LoggedIn: React.FC = () => {
+  const { setSelectedPlaylist } = usePlaylist();
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [expandedPlaylists, setExpandedPlaylists] = useState<{
     [key: string]: boolean;
   }>({});
+  const router = useRouter();
 
   useEffect(() => {
-    const fetchPlaylistsWithTracks = async () => {
+    const fetchPlaylists = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3000/api/playlists",
-          { withCredentials: true }
-        );
+        const response = await axios.get("/api/playlists", {
+          withCredentials: true,
+        });
         setPlaylists(response.data);
       } catch (error) {
-        console.error("Error fetching playlists with tracks:", error);
+        console.error("Error fetching playlists:", error);
       }
     };
-
-    fetchPlaylistsWithTracks();
+    fetchPlaylists();
   }, []);
 
   const toggleTracks = (playlistId: string) => {
@@ -47,6 +49,11 @@ const LoggedIn = () => {
       ...prevState,
       [playlistId]: !prevState[playlistId],
     }));
+  };
+
+  const handleViewChart = (playlist: Playlist) => {
+    setSelectedPlaylist(playlist);
+    router.push("/genreGraph");
   };
 
   return (
@@ -86,6 +93,12 @@ const LoggedIn = () => {
                   {expandedPlaylists[playlist.id]
                     ? "Hide Tracks"
                     : "Show Tracks"}
+                </button>
+                <button
+                  onClick={() => handleViewChart(playlist)}
+                  className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition ml-4"
+                >
+                  Show Genre Chart
                 </button>
               </div>
               {expandedPlaylists[playlist.id] && (
