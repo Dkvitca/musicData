@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import axios from "axios";
 import { IUser } from "../models/User";
 import { ReducedReleaseGroup } from "../models/ReducedReleaseGroup";
+import stringSimilarity from "string-similarity";
 
 interface Track {
   name: string;
@@ -57,22 +58,30 @@ export const getPlaylistsWithTracks = async (req: Request, res: Response) => {
               imageUrl: item.track.album.images[0]?.url || "",
             };
 
-            // Fetch album details directly from the database
-            try {
-              const albumDetails = await ReducedReleaseGroup.findOne({
-                title: track.album,
-                "artist-credit.name": track.artist,
-              });
-              console.log(albumDetails);
-              if (albumDetails) {
-                track.tags = albumDetails.tags;
-                track.releaseYear = albumDetails["first-release-date"];
+            // Fetch all potential matches from the database
+            const potentialMatches = await ReducedReleaseGroup.find({
+              "artist-credit.name": track.artist,
+            });
+
+            if (potentialMatches.length > 0) {
+              // Find the closest matching album title
+              const titles = potentialMatches.map((album: any) => album.title);
+              const bestMatch = stringSimilarity.findBestMatch(
+                track.album,
+                titles
+              ).bestMatch;
+
+              if (bestMatch.rating > 0.3) {
+                // Adjust the threshold as needed
+                const albumDetails = potentialMatches.find(
+                  (album: any) => album.title === bestMatch.target
+                );
+                console.log(albumDetails);
+                if (albumDetails) {
+                  track.tags = albumDetails.tags;
+                  track.releaseYear = albumDetails["first-release-date"];
+                }
               }
-            } catch (error) {
-              console.error(
-                `Error fetching album details for ${track.album}:`,
-                error
-              );
             }
 
             return track;
