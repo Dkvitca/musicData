@@ -108,16 +108,15 @@ const LoggedIn = () => {
                         <h3 className="text-xl font-semibold">{track.name}</h3>
                         <p className="text-sm text-gray-300">{track.artist}</p>
                         <p className="text-sm text-gray-400">{track.album}</p>
-                        {track.releaseYear && (
-                          <p className="text-sm text-gray-400">
-                            Released: {track.releaseYear}
-                          </p>
-                        )}
-                        {track.tags && (
-                          <div className="text-sm text-gray-400">
-                            Tags: {track.tags.map((tag) => tag.name).join(", ")}
-                          </div>
-                        )}
+                        <p className="text-sm text-gray-400">
+                          Released: {track.releaseYear || "Unknown"}
+                        </p>
+                        <div className="text-sm text-gray-400">
+                          Tags:{" "}
+                          {track.tags && track.tags.length > 0
+                            ? track.tags.map((tag) => tag.name).join(", ")
+                            : "None"}
+                        </div>
                       </div>
                       <a
                         href={track.href}
