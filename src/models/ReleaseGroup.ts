@@ -1,3 +1,5 @@
+// src/models/ReleaseGroup.ts
+
 import mongoose, { Schema, Document } from "mongoose";
 
 interface Tag {
@@ -5,15 +7,20 @@ interface Tag {
   count: number;
 }
 
-export interface IReducedReleaseGroup extends Document {
+interface Genre {
+  name: string;
+}
+
+export interface IReleaseGroup extends Document {
   title: string;
   "artist-credit": { artist: { name: string } }[];
   "first-release-date": string;
   "primary-type": string;
   tags: Tag[];
+  genres: Genre[];
 }
 
-const ReducedReleaseGroupSchema: Schema = new Schema({
+const ReleaseGroupSchema: Schema = new Schema({
   title: { type: String, required: true },
   "artist-credit": [
     {
@@ -30,10 +37,15 @@ const ReducedReleaseGroupSchema: Schema = new Schema({
       count: { type: Number, required: true },
     },
   ],
+  genres: [
+    {
+      name: { type: String, required: true },
+    },
+  ],
 });
 
-export const ReducedReleaseGroup = mongoose.model<IReducedReleaseGroup>(
-  "ReducedReleaseGroup",
-  ReducedReleaseGroupSchema,
-  "reduced_release_group"
+export const ReleaseGroup = mongoose.model<IReleaseGroup>(
+  "ReleaseGroup",
+  ReleaseGroupSchema,
+  "release_group"
 );

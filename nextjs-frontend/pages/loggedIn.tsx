@@ -1,3 +1,5 @@
+// pages/loggedIn.tsx
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
@@ -11,6 +13,7 @@ interface Track {
   href: string;
   imageUrl: string;
   tags?: { name: string; count: number }[];
+  genres?: { name: string }[];
   releaseYear?: string;
 }
 
@@ -124,6 +127,12 @@ const LoggedIn: React.FC = () => {
                         <p className="text-sm text-gray-400">
                           Released: {track.releaseYear || "Unknown"}
                         </p>
+                        <div className="text-sm text-gray-400">
+                          Genres:{" "}
+                          {track.genres && track.genres.length > 0
+                            ? track.genres.map((genre) => genre.name).join(", ")
+                            : "None"}
+                        </div>
                         <div className="text-sm text-gray-400">
                           Tags:{" "}
                           {track.tags && track.tags.length > 0
