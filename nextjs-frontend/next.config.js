@@ -23,6 +23,10 @@ const nextConfig = {
         source: "/api/playlists",
         destination: "http://localhost:3000/api/playlists",
       },
+      {
+        source: "/api/artists",
+        destination: "http://localhost:3000/api/artists",
+      },
     ];
   },
 };
